@@ -18,7 +18,7 @@ import { toast } from "@/components/ui/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 
 export default function LoginForm() {
-  const { mutate: login } = useLoginApi();
+  const { mutate: login, isPending } = useLoginApi();
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -28,6 +28,7 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: LoginBodyType) => {
+    if (isPending) return;
     login(data, {
       onSuccess: (value) => {
         toast({ description: value.payload.message });
