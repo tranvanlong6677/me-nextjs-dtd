@@ -1,25 +1,26 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-const privatePath = ["/manage"];
-const publicPath = ["/login"];
+const privatePaths = ['/manage']
+const unAuthPaths = ['/login']
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  console.log(">>> check pathname: " + pathname);
-  const isAuth = Boolean(request.cookies.get("accessToken"));
-  if (privatePath.some((path) => pathname.startsWith(path)) && !isAuth) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  const { pathname } = request.nextUrl
+  // pathname: /manage/dashboard
+  const isAuth = Boolean(request.cookies.get('accessToken')?.value)
+  // Chưa đăng nhập thì không cho vào private paths
+  if (privatePaths.some((path) => pathname.startsWith(path)) && !isAuth) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
-  if (publicPath.some((path) => pathname.startsWith(path)) && isAuth) {
-    return NextResponse.redirect(new URL("/", request.url));
+  // Đăng nhập rồi thì sẽ không cho vào login nữa
+  if (unAuthPaths.some((path) => pathname.startsWith(path)) && isAuth) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
-
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/manage/:path*", "/login"],
-};
+  matcher: ['/manage/:path*', '/login']
+}
