@@ -13,12 +13,7 @@ import Link from "next/link";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useAccountProfile } from "@/queries/useAccount";
-
-// const account = {
-//   name: "Nguyễn Văn A",
-//   avatar: "https://i.pravatar.cc/150",
-// };
+import { useAccountMe } from "@/queries/useAccount";
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation();
@@ -38,7 +33,7 @@ export default function DropdownAvatar() {
     }
   };
 
-  const { data } = useAccountProfile();
+  const { data } = useAccountMe();
   console.log(data);
   const account = data?.payload.data;
   return (
