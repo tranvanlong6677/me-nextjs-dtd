@@ -3,14 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
 import { useForm } from 'react-hook-form'
 import { ChangePasswordBody, ChangePasswordBodyType } from '@/schemaValidations/account.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { useChangePasswordMutation } from '@/queries/useAccount'
 import { toast } from '@/components/ui/use-toast'
-import { handleErrorApi } from '@/lib/utils'
+import {handleErrorApi } from '@/lib/utils'
 
 export default function ChangePasswordForm() {
   const {mutateAsync:changePassword,isPending} = useChangePasswordMutation()
@@ -27,6 +26,9 @@ export default function ChangePasswordForm() {
     if(isPending) return
     try {
       const result = await changePassword(value)
+      localStorage.setItem('accessToken',result.payload.data.accessToken)
+      localStorage.setItem('refreshToken',result.payload.data.refreshToken)
+
       toast({
         description:result.payload.message
       })
