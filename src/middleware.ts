@@ -1,29 +1,38 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const privatePaths = ["/manage"];
-const unAuthPaths = ["/login"];
+const privatePaths = ['/manage'];
+const unAuthPaths = ['/login'];
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get("accessToken")?.value
-  const refreshToken = request.cookies.get("refreshToken")?.value
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
 
   // Chưa đăng nhập thì không cho vào private paths
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
-    const url = new URL("/login", request.url);
+    const url = new URL('/login', request.url);
     return NextResponse.redirect(url);
   }
   // Đăng nhập rồi thì sẽ không cho vào login nữa
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Đăng nhập rồi nhưng access token hết hạn thì chuyển hướng về logout page
-  if (privatePaths.some((path) => pathname.startsWith(path)) && !accessToken && refreshToken) {
-    const url = new URL("/logout", request.url);
-    url.searchParams.set("refreshToken", request.cookies.get("refreshToken")?.value ?? '');
+  // Đăng nhập rồi nhưng access token hết hạn thì chuyển hướng về trang refresh token page
+  if (
+    privatePaths.some((path) => pathname.startsWith(path)) &&
+    !accessToken &&
+    refreshToken
+  ) {
+    console.log(3);
+    const url = new URL('/refresh-token', request.url);
+    url.searchParams.set(
+      'refreshToken',
+      request.cookies.get('refreshToken')?.value ?? '',
+    );
+    url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();
@@ -31,5 +40,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/manage/:path*", "/login"],
+  matcher: ['/manage/:path*', '/login'],
 };
