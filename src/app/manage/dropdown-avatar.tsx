@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,26 +6,28 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useLogoutMutation } from "@/queries/useAuth";
-import { handleErrorApi } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { useAccountMe } from "@/queries/useAccount";
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useLogoutMutation } from '@/queries/useAuth';
+import { handleErrorApi, removeTokenFromLocalStorage } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { useAccountMe } from '@/queries/useAccount';
+import { useAppContext } from '@/components/app-provider';
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
+  const { setIsAuth } = useAppContext();
 
   const logout = async () => {
     if (logoutMutation.isPending) return;
     try {
       await logoutMutation.mutateAsync();
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      router.push("/");
+      removeTokenFromLocalStorage();
+      setIsAuth(false);
+      router.push('/');
     } catch (error) {
       handleErrorApi({
         error,
@@ -34,7 +36,7 @@ export default function DropdownAvatar() {
   };
 
   const { data } = useAccountMe();
-  console.log(data);
+
   const account = data?.payload.data;
   return (
     <DropdownMenu>
@@ -59,7 +61,7 @@ export default function DropdownAvatar() {
         <DropdownMenuLabel>{account?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={"/manage/setting"} className="cursor-pointer">
+          <Link href={'/manage/setting'} className="cursor-pointer">
             Cài đặt
           </Link>
         </DropdownMenuItem>

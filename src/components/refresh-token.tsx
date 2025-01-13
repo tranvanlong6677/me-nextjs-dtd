@@ -16,7 +16,6 @@ export default function RefreshToken() {
     // Phải gọi lần đầu tiên, vì interval sẽ chạy sau thời gian TIMEOUT
     checkAndRefreshToken({
       onError: () => {
-        console.log('error hihi');
         clearInterval(interval);
         router.push('/login');
       },
@@ -28,7 +27,6 @@ export default function RefreshToken() {
       () =>
         checkAndRefreshToken({
           onError: () => {
-            console.log('error hihi2');
             clearInterval(interval);
             router.push('/login');
           },

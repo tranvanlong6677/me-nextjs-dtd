@@ -140,7 +140,6 @@ const request = async <Response>(
           }
         }
       } else {
-        console.log(6);
         const accessToken = (options?.headers as any)?.Authorization.split(
           'Bearer ',
         )[1];

@@ -1,31 +1,36 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useLoginMutation } from "@/queries/useAuth";
-import { toast } from "@/components/ui/use-toast";
-import { handleErrorApi } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useLoginMutation } from '@/queries/useAuth';
+import { toast } from '@/components/ui/use-toast';
+import { handleErrorApi, removeTokenFromLocalStorage } from '@/lib/utils';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAppContext } from '@/components/app-provider';
 
 export default function LoginForm() {
   const router = useRouter();
   const loginMutation = useLoginMutation();
+  const searchParams = useSearchParams();
+  const clearToken = searchParams.get('clearToken');
+  const { setIsAuth } = useAppContext();
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -38,7 +43,8 @@ export default function LoginForm() {
       toast({
         description: result.payload.message,
       });
-      router.push("/manage/dashboard");
+      router.push('/manage/dashboard');
+      setIsAuth(true);
     } catch (error: any) {
       handleErrorApi({
         error,
@@ -46,6 +52,12 @@ export default function LoginForm() {
       });
     }
   };
+
+  useEffect(() => {
+    if (clearToken === 'true') {
+      setIsAuth(false);
+    }
+  }, [setIsAuth, clearToken]);
 
   return (
     <Card className="mx-auto max-w-sm">
