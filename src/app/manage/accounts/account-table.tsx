@@ -40,7 +40,13 @@ import {
 import AddEmployee from '@/app/manage/accounts/add-employee';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import EditEmployee from '@/app/manage/accounts/edit-employee';
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  Suspense,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -179,7 +185,8 @@ function AlertDialogDeleteAccount({
 }
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
-export default function AccountTable() {
+
+const AccountTableContent = () => {
   const searchParam = useSearchParams();
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1;
   const pageIndex = page - 1;
@@ -325,5 +332,12 @@ export default function AccountTable() {
         </div>
       </div>
     </AccountTableContext.Provider>
+  );
+};
+export default function AccountTable() {
+  return (
+    <Suspense>
+      <AccountTableContent />
+    </Suspense>
   );
 }

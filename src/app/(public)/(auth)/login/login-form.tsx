@@ -17,10 +17,10 @@ import { useLoginMutation } from '@/queries/useAuth';
 import { toast } from '@/components/ui/use-toast';
 import { handleErrorApi, removeTokenFromLocalStorage } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useAppContext } from '@/components/app-provider';
 
-export default function LoginForm() {
+const LoginFormContent = () => {
   const router = useRouter();
   const loginMutation = useLoginMutation();
   const searchParams = useSearchParams();
@@ -127,5 +127,13 @@ export default function LoginForm() {
         </Form>
       </CardContent>
     </Card>
+  );
+};
+
+export default function LoginForm() {
+  return (
+    <Suspense>
+      <LoginFormContent />
+    </Suspense>
   );
 }

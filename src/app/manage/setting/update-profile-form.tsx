@@ -1,28 +1,28 @@
-"use client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
-import { useForm } from "react-hook-form";
+'use client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Upload } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import {
   UpdateMeBody,
   UpdateMeBodyType,
-} from "@/schemaValidations/account.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useAccountMe, useUpdateMeMutation } from "@/queries/useAccount";
-import { useUploadMediaMutation } from "@/queries/useMedia";
-import { toast } from "@/components/ui/use-toast";
+} from '@/schemaValidations/account.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAccountMe, useUpdateMeMutation } from '@/queries/useAccount';
+import { useUploadMediaMutation } from '@/queries/useMedia';
+import { toast } from '@/components/ui/use-toast';
 
 export default function UpdateProfileForm() {
   const [file, setFile] = useState<File | null>();
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const {data,refetch:refetchDataMe} = useAccountMe()
-  const {mutateAsync:updateMe,isPending} = useUpdateMeMutation()
-  const {mutateAsync:uploadMedia} = useUploadMediaMutation()
+  const { data, refetch: refetchDataMe } = useAccountMe();
+  const { mutateAsync: updateMe, isPending } = useUpdateMeMutation();
+  const { mutateAsync: uploadMedia } = useUploadMediaMutation();
   const form = useForm<UpdateMeBodyType>({
     resolver: zodResolver(UpdateMeBody),
     defaultValues: {
@@ -31,58 +31,60 @@ export default function UpdateProfileForm() {
     },
   });
 
-  const avatar = form.watch("avatar");
-  const name = form.watch("avatar");
+  const avatar = form.watch('avatar');
+  const name = form.watch('avatar');
 
   const previewAvatar = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file);
     }
-    return avatar
-  }, [file,avatar]);
+    return avatar;
+  }, [file, avatar]);
 
-  useEffect(()=>{
-    if(data){
-      const {name,avatar} = data?.payload.data
+  useEffect(() => {
+    if (data) {
+      const { name, avatar } = data?.payload.data;
       form.reset({
         name,
-        avatar: avatar ?? "",
-      })
+        avatar: avatar ?? undefined,
+      });
     }
-  },[data])
+  }, [data]);
 
-  const reset = ()=>{
-    form.reset()
-    setFile(null)
-  }
+  const reset = () => {
+    form.reset();
+    setFile(null);
+  };
 
-  const onSubmit =async (value:UpdateMeBodyType)=>{
-    if(isPending) return
-    let body = value
+  const onSubmit = async (value: UpdateMeBodyType) => {
+    if (isPending) return;
+    let body = value;
     try {
-      if(file){
+      if (file) {
         const formData = new FormData();
-        formData.append("file", file);
-        const uploadImageResult = await uploadMedia(formData)
-        const imageUrl = uploadImageResult.payload.data
-        body = {...value, avatar: imageUrl}
+        formData.append('file', file);
+        const uploadImageResult = await uploadMedia(formData);
+        const imageUrl = uploadImageResult.payload.data;
+        body = { ...value, avatar: imageUrl };
       }
-     const result = await  updateMe(body)
+      const result = await updateMe(body);
       toast({
-        description:result.payload.message
-      })
-      refetchDataMe()
+        description: result.payload.message,
+      });
+      refetchDataMe();
     } catch (error) {
-        console.log(">>> Error: " + error)
+      console.log('>>> Error: ' + error);
     }
-  }
+  };
 
   return (
     <Form {...form}>
       <form
         noValidate
         className="grid auto-rows-max items-start gap-4 md:gap-8"
-        onSubmit={form.handleSubmit(onSubmit,e=>{console.log(e)})}
+        onSubmit={form.handleSubmit(onSubmit, (e) => {
+          console.log(e);
+        })}
       >
         <Card x-chunk="dashboard-07-chunk-0">
           <CardHeader>
@@ -99,7 +101,7 @@ export default function UpdateProfileForm() {
                       <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
                         <AvatarImage src={previewAvatar} />
                         <AvatarFallback className="rounded-none">
-                         {name}
+                          {name}
                         </AvatarFallback>
                       </Avatar>
                       <input
@@ -111,7 +113,9 @@ export default function UpdateProfileForm() {
                           const file = e.target.files?.[0];
                           if (file) {
                             setFile(file);
-                            field.onChange('http://localhost:3000/'+field.name)
+                            field.onChange(
+                              'http://localhost:3000/' + field.name,
+                            );
                           }
                         }}
                       />
@@ -148,7 +152,10 @@ export default function UpdateProfileForm() {
               />
 
               <div className=" items-center gap-2 md:ml-auto flex">
-                <Button variant="outline" size="sm" type="reset"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="reset"
                   onClick={reset}
                 >
                   Hủy
