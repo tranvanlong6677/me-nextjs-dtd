@@ -59,6 +59,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useSearchParams } from 'next/navigation';
 import AutoPagination from '@/components/auto-pagination/AutoPagination';
+import {
+  useDeleteAccountMutation,
+  useGetAccountList,
+} from '@/queries/useAccount';
+import { toast } from '@/components/ui/use-toast';
+import { handleErrorApi } from '@/lib/utils';
 
 type AccountItem = AccountListResType['data'][0];
 
@@ -155,6 +161,21 @@ function AlertDialogDeleteAccount({
   employeeDelete: AccountItem | null;
   setEmployeeDelete: (value: AccountItem | null) => void;
 }) {
+  const { mutateAsync: deleteEmployee } = useDeleteAccountMutation();
+  const handleDeleteEmployee = async () => {
+    if (!employeeDelete) return;
+    try {
+      const res = await deleteEmployee(employeeDelete.id);
+      setEmployeeDelete(null);
+      toast({
+        description: res.payload.message,
+      });
+    } catch (error) {
+      handleErrorApi({
+        error,
+      });
+    }
+  };
   return (
     <AlertDialog
       open={Boolean(employeeDelete)}
@@ -177,7 +198,13 @@ function AlertDialogDeleteAccount({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction
+            onClick={() => {
+              handleDeleteEmployee();
+            }}
+          >
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -191,11 +218,12 @@ const AccountTableContent = () => {
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1;
   const pageIndex = page - 1;
   // const params = Object.fromEntries(searchParam.entries())
+  const { data: accountListData } = useGetAccountList();
   const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>();
   const [employeeDelete, setEmployeeDelete] = useState<AccountItem | null>(
     null,
   );
-  const data: any[] = [];
+  const data = accountListData?.payload.data ?? [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});

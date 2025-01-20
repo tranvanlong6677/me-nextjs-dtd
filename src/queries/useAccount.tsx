@@ -34,6 +34,7 @@ export const useGetAccountDetail = ({ id }: { id: number }) => {
   return useQuery({
     queryKey: ['account-detail', id],
     queryFn: () => accountApiRequest.getEmployee(id),
+    enabled: !!id,
   });
 };
 
