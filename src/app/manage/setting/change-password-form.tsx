@@ -4,15 +4,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useForm } from 'react-hook-form'
-import { ChangePasswordBody, ChangePasswordBodyType } from '@/schemaValidations/account.schema'
+import {
+  ChangePasswordBody,
+  ChangePasswordBodyType
+} from '@/schemaValidations/account.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { useChangePasswordMutation } from '@/queries/useAccount'
 import { toast } from '@/components/ui/use-toast'
-import {handleErrorApi } from '@/lib/utils'
+import { handleErrorApi } from '@/lib/utils'
 
 export default function ChangePasswordForm() {
-  const {mutateAsync:changePassword,isPending} = useChangePasswordMutation()
+  const changePasswordMutation = useChangePasswordMutation()
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
     defaultValues: {
@@ -21,33 +24,32 @@ export default function ChangePasswordForm() {
       confirmPassword: ''
     }
   })
-
-  const onSubmit = async(value:ChangePasswordBodyType)=>{
-    if(isPending) return
+  const onSubmit = async (data: ChangePasswordBodyType) => {
+    if (changePasswordMutation.isPending) return
     try {
-      const result = await changePassword(value)
-      localStorage.setItem('accessToken',result.payload.data.accessToken)
-      localStorage.setItem('refreshToken',result.payload.data.refreshToken)
-
+      const result = await changePasswordMutation.mutateAsync(data)
       toast({
-        description:result.payload.message
+        description: result.payload.message
       })
-      form.reset()
     } catch (error) {
       handleErrorApi({
         error,
-        setError:form.setError
+        setError: form.setError
       })
     }
   }
 
-  const resetForm = ()=>{
+  const reset = () => {
     form.reset()
   }
+
   return (
     <Form {...form}>
-      <form noValidate className='grid auto-rows-max items-start gap-4 md:gap-8' onSubmit={form.handleSubmit(onSubmit)}
-      onReset={resetForm}
+      <form
+        noValidate
+        className='grid auto-rows-max items-start gap-4 md:gap-8'
+        onSubmit={form.handleSubmit(onSubmit)}
+        onReset={reset}
       >
         <Card className='overflow-hidden' x-chunk='dashboard-07-chunk-4'>
           <CardHeader>
@@ -63,7 +65,13 @@ export default function ChangePasswordForm() {
                   <FormItem>
                     <div className='grid gap-3'>
                       <Label htmlFor='oldPassword'>Mật khẩu cũ</Label>
-                      <Input id='oldPassword' type='password' className='w-full' {...field} />
+                      <Input
+                        autoComplete='current-password'
+                        id='oldPassword'
+                        type='password'
+                        className='w-full'
+                        {...field}
+                      />
                       <FormMessage />
                     </div>
                   </FormItem>
@@ -76,7 +84,13 @@ export default function ChangePasswordForm() {
                   <FormItem>
                     <div className='grid gap-3'>
                       <Label htmlFor='password'>Mật khẩu mới</Label>
-                      <Input id='password' type='password' className='w-full' {...field} />
+                      <Input
+                        autoComplete='new-password'
+                        id='password'
+                        type='password'
+                        className='w-full'
+                        {...field}
+                      />
                       <FormMessage />
                     </div>
                   </FormItem>
@@ -88,18 +102,28 @@ export default function ChangePasswordForm() {
                 render={({ field }) => (
                   <FormItem>
                     <div className='grid gap-3'>
-                      <Label htmlFor='confirmPassword'>Nhập lại mật khẩu mới</Label>
-                      <Input id='confirmPassword' type='password' className='w-full' {...field} />
+                      <Label htmlFor='confirmPassword'>
+                        Nhập lại mật khẩu mới
+                      </Label>
+                      <Input
+                        autoComplete='new-password'
+                        id='confirmPassword'
+                        type='password'
+                        className='w-full'
+                        {...field}
+                      />
                       <FormMessage />
                     </div>
                   </FormItem>
                 )}
               />
               <div className=' items-center gap-2 md:ml-auto flex'>
-                <Button variant='outline' size='sm' type='reset' >
+                <Button variant='outline' size='sm' type='reset'>
                   Hủy
                 </Button>
-                <Button size='sm' type='submit'>Lưu thông tin</Button>
+                <Button size='sm' type='submit'>
+                  Lưu thông tin
+                </Button>
               </div>
             </div>
           </CardContent>

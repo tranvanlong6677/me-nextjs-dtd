@@ -1,64 +1,65 @@
-'use client';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import RefreshToken from './refresh-token';
+'use client'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import RefreshToken from '@/components/refresh-token'
 import {
-  useContext,
   createContext,
-  useState,
-  useEffect,
   useCallback,
-} from 'react';
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 import {
   getAccessTokenFromLocalStorage,
-  removeTokenFromLocalStorage,
-} from '@/lib/utils';
+  removeTokensFromLocalStorage
+} from '@/lib/utils'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
-    },
-  },
-});
-
+      refetchOnMount: false
+    }
+  }
+})
 const AppContext = createContext({
   isAuth: false,
-  setIsAuth: (value: boolean) => {},
-});
-
+  setIsAuth: (isAuth: boolean) => {}
+})
 export const useAppContext = () => {
-  return useContext(AppContext);
-};
-
+  return useContext(AppContext)
+}
 export default function AppProvider({
-  children,
+  children
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const [isAuth, setIsAuthState] = useState(false);
-  const setIsAuth = useCallback((value: boolean) => {
-    setIsAuthState(value);
-    if (!value) {
-      removeTokenFromLocalStorage();
-    }
-  }, []);
-
+  const [isAuth, setIsAuthState] = useState(false)
   useEffect(() => {
-    const accessToken = getAccessTokenFromLocalStorage();
+    const accessToken = getAccessTokenFromLocalStorage()
     if (accessToken) {
-      setIsAuthState(true);
+      setIsAuthState(true)
     }
-  }, []);
+  }, [])
 
+  // Các bạn nào mà dùng Next.js 15 và React 19 thì không cần dùng useCallback đoạn này cũng được
+  const setIsAuth = useCallback((isAuth: boolean) => {
+    if (isAuth) {
+      setIsAuthState(true)
+    } else {
+      setIsAuthState(false)
+      removeTokensFromLocalStorage()
+    }
+  }, [])
+
+  // Nếu mọi người dùng React 19 và Next.js 15 thì không cần AppContext.Provider, chỉ cần AppContext là đủ
   return (
     <AppContext.Provider value={{ isAuth, setIsAuth }}>
       <QueryClientProvider client={queryClient}>
         {children}
-        <ReactQueryDevtools initialIsOpen={false} />
         <RefreshToken />
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </AppContext.Provider>
-  );
+  )
 }

@@ -1,64 +1,56 @@
-import http from '@/lib/http';
+import http from '@/lib/http'
 import {
   LoginBodyType,
   LoginResType,
   LogoutBodyType,
   RefreshTokenBodyType,
-  RefreshTokenResType,
-} from '@/schemaValidations/auth.schema';
+  RefreshTokenResType
+} from '@/schemaValidations/auth.schema'
 
 const authApiRequest = {
   refreshTokenRequest: null as Promise<{
-    status: number;
-    payload: {
-      message: string;
-      data: {
-        refreshToken: string;
-        accessToken: string;
-      };
-    };
+    status: number
+    payload: RefreshTokenResType
   }> | null,
   sLogin: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
   login: (body: LoginBodyType) =>
     http.post<LoginResType>('/api/auth/login', body, {
-      baseUrl: '',
+      baseUrl: ''
     }),
   sLogout: (
     body: LogoutBodyType & {
-      accessToken: string;
-    },
+      accessToken: string
+    }
   ) =>
     http.post(
       '/auth/logout',
       {
-        refreshToken: body.refreshToken,
+        refreshToken: body.refreshToken
       },
       {
         headers: {
-          Authorization: `Bearer ${body.accessToken}`,
-        },
-      },
+          Authorization: `Bearer ${body.accessToken}`
+        }
+      }
     ),
   logout: () => http.post('/api/auth/logout', null, { baseUrl: '' }), // client gọi đến route handler, không cần truyền AT và RT vào body vì AT và RT tự  động gửi thông qua cookie rồi
   sRefreshToken: (body: RefreshTokenBodyType) =>
     http.post<RefreshTokenResType>('/auth/refresh-token', body),
-
   async refreshToken() {
     if (this.refreshTokenRequest) {
-      return this.refreshTokenRequest;
+      return this.refreshTokenRequest
     }
     this.refreshTokenRequest = http.post<RefreshTokenResType>(
       '/api/auth/refresh-token',
       null,
       {
-        baseUrl: '',
-      },
-    );
+        baseUrl: ''
+      }
+    )
+    const result = await this.refreshTokenRequest
+    this.refreshTokenRequest = null
+    return result
+  }
+}
 
-    const result = this.refreshTokenRequest;
-    this.refreshTokenRequest = null;
-    return result;
-  },
-};
-
-export default authApiRequest;
+export default authApiRequest
