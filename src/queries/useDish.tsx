@@ -2,14 +2,17 @@ import dishApiRequest from '@/apiRequests/dish';
 import { UpdateDishBodyType } from '@/schemaValidations/dish.schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export const useGetDishMutation = (id: number) => {
-  return useMutation({ mutationFn: () => dishApiRequest.getDish(id) });
+export const useGetDishQuery = (id: number) => {
+  return useQuery({
+    queryKey: ['dish-detail', id],
+    queryFn: () => dishApiRequest.getDish(id),
+  });
 };
 
-export const useCreateDishMutation = (body: UpdateDishBodyType) => {
+export const useCreateDishMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => dishApiRequest.add(body),
+    mutationFn: (body: UpdateDishBodyType) => dishApiRequest.add(body),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['dishes'],
@@ -18,10 +21,15 @@ export const useCreateDishMutation = (body: UpdateDishBodyType) => {
   });
 };
 
-export const useUpdateDishMutation = (id: number, body: UpdateDishBodyType) => {
+export const useUpdateDishMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => dishApiRequest.updateDish(id, body),
+    mutationFn: ({
+      id,
+      ...body
+    }: UpdateDishBodyType & {
+      id: number;
+    }) => dishApiRequest.updateDish(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['dishes'],
@@ -30,11 +38,11 @@ export const useUpdateDishMutation = (id: number, body: UpdateDishBodyType) => {
   });
 };
 
-export const useDeleteDishMutation = (id: number) => {
+export const useDeleteDishMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => dishApiRequest.deleteDish(id),
+    mutationFn: (id: number) => dishApiRequest.deleteDish(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['dishes'],
