@@ -1,3 +1,4 @@
+import { TokenPayload } from './../../../../NextJs-Super-Template/src/types/jwt.types';
 import { toast } from '@/components/ui/use-toast';
 import { EntityError } from '@/lib/http';
 import { type ClassValue, clsx } from 'clsx';
@@ -148,4 +149,8 @@ export const getTableLink = ({
   return (
     envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
   );
+};
+
+export const decodeToken = (token: string) => {
+  return jwt.decode(token) as TokenPayload;
 };
