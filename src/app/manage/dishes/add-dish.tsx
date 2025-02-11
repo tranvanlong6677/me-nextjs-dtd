@@ -40,6 +40,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateDishMutation } from '@/queries/useDish';
 import { toast } from '@/components/ui/use-toast';
 import { useUploadMediaMutation } from '@/queries/useMedia';
+import revalidateApiRequest from '@/apiRequests/revalidate';
 
 export default function AddDish() {
   const [file, setFile] = useState<File | null>(null);
@@ -89,6 +90,7 @@ export default function AddDish() {
         };
       }
       const result = await addDish(body);
+      await revalidateApiRequest('dishes');
       toast({
         description: result.payload.message,
       });
