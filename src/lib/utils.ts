@@ -6,8 +6,9 @@ import { UseFormSetError } from 'react-hook-form';
 import { twMerge } from 'tailwind-merge';
 import jwt from 'jsonwebtoken';
 import authApiRequest from '@/apiRequests/auth';
-import { DishStatus, TableStatus } from '@/constants/type';
+import { DishStatus, Role, TableStatus } from '@/constants/type';
 import envConfig from '@/config';
+import guestApiRequest from '@/apiRequests/guest';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -99,7 +100,13 @@ export const checkAndRefreshToken = async (param?: {
   ) {
     // Gọi API refresh token
     try {
-      const res = await authApiRequest.refreshToken();
+      const role = decodeToken(refreshToken).role;
+      let res;
+      if (role !== Role.Guest) {
+        res = await authApiRequest.refreshToken();
+      } else {
+        res = await guestApiRequest.refreshToken();
+      }
       setAccessTokenToLocalStorage(res.payload.data.accessToken);
       setRefreshTokenToLocalStorage(res.payload.data.refreshToken);
       param?.onSuccess && param.onSuccess();

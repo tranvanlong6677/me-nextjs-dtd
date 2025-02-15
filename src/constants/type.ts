@@ -11,8 +11,6 @@ export const Role = {
   Guest: 'Guest',
 } as const;
 
-export type RoleType = (typeof Role)[keyof typeof Role];
-
 export const RoleValues = [Role.Owner, Role.Employee, Role.Guest] as const;
 
 export const DishStatus = {
@@ -54,3 +52,5 @@ export const OrderStatusValues = [
   OrderStatus.Delivered,
   OrderStatus.Paid,
 ] as const;
+
+export const ManagerRoom = 'manager' as const;

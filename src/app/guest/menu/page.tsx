@@ -1,7 +1,10 @@
-export default function Page() {
+import MenuOrders from './menu-orders';
+
+export default async function MenuPage() {
   return (
-    <div>
-      <h1>Menu Guest</h1>
+    <div className="max-w-[400px] mx-auto space-y-4">
+      <h1 className="text-center text-xl font-bold">🍕 Menu quán</h1>
+      <MenuOrders />
     </div>
   );
 }
