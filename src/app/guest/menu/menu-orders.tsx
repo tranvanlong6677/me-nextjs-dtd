@@ -8,7 +8,7 @@ import Quantity from './quantity';
 import { useGuestOrderMutaion } from '@/queries/useGuest';
 import { toast } from '@/components/ui/use-toast';
 import { useRouter } from 'next/navigation';
-import { handleErrorApi } from '@/lib/utils';
+import { cn, handleErrorApi } from '@/lib/utils';
 import { DishStatus } from '@/constants/type';
 
 export default function MenuOrders() {
@@ -63,12 +63,9 @@ export default function MenuOrders() {
           <div key={dish?.id} className="flex gap-4 mb-4">
             <div className="flex-shrink-0 relative">
               {dish.status === DishStatus.Unavailable && (
-                <span
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-               bg-opacity-50 bg-white text-red-500 text-sm italic px-3 py-1 rounded-md"
-                >
+                <div className="absolute text-sm inset-0 flex items-center justify-center">
                   Hết hàng
-                </span>
+                </div>
               )}
               <Image
                 src={dish?.image}
@@ -84,7 +81,12 @@ export default function MenuOrders() {
               <p className="text-xs">{dish?.description}</p>
               <p className="text-xs font-semibold">{dish?.price}đ</p>
             </div>
-            <div className="flex-shrink-0 ml-auto flex justify-center items-center">
+            <div
+              className={cn(
+                `flex-shrink-0 ml-auto flex justify-center items-center`,
+                dish.status === DishStatus.Unavailable && 'pointer-events-none',
+              )}
+            >
               <Quantity
                 value={
                   orders.find((item) => item.dishId === dish?.id)?.quantity ?? 0

@@ -15,8 +15,11 @@ import { useEffect } from 'react';
 import { useGuestLoginMutation } from '@/queries/useGuest';
 import { toast } from '@/components/ui/use-toast';
 import { handleErrorApi } from '@/lib/utils';
+import { useAppContext } from '@/components/app-provider';
+import { Role } from '@/constants/type';
 
 export default function GuestLoginForm() {
+  const { setRole } = useAppContext();
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
@@ -45,6 +48,7 @@ export default function GuestLoginForm() {
       description: result.payload.message,
     });
     router.push('/guest/menu');
+    setRole(Role.Guest);
     try {
     } catch (error) {
       handleErrorApi({
