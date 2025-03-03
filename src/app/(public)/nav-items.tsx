@@ -1,5 +1,16 @@
 'use client';
 import { useAppContext } from '@/components/app-provider';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Role, RoleType } from '@/constants/type';
 import { cn, handleErrorApi } from '@/lib/utils';
 import { useLogoutMutation } from '@/queries/useAuth';
@@ -73,10 +84,27 @@ export default function NavItems({ className }: { className?: string }) {
           </Link>
         );
       })}
+
       {!!isLoggedIn && (
-        <div className={cn(`${className} cursor-pointer`)} onClick={logout}>
-          Đăng xuất
-        </div>
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <div className={cn(`${className} cursor-pointer text-start`)}>
+              Đăng xuất
+            </div>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Bạn có muốn đăng xuất không?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Đăng xuất có thể làm mất đi hóa đơn của bạn
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Thoát</AlertDialogCancel>
+              <AlertDialogAction onClick={logout}>OK</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   );
