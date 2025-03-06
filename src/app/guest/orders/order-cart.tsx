@@ -51,8 +51,9 @@ export default function OrderCart() {
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('update-order', onUpdateOrder);
     };
-  }, []);
+  }, [refetch]);
   return (
     <>
       {orders?.map((dish) => {
