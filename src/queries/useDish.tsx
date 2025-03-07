@@ -6,6 +6,7 @@ export const useGetDishQuery = (id: number) => {
   return useQuery({
     queryKey: ['dish-detail', id],
     queryFn: () => dishApiRequest.getDish(id),
+    enabled: !!id,
   });
 };
 

@@ -3,20 +3,58 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import { DishStatus, OrderStatus } from '@/constants/type';
 import socket from '@/lib/socket';
 import { getVietnameseOrderStatus } from '@/lib/utils';
 import { useGuestOrderListQuery } from '@/queries/useGuest';
-import { UpdateOrderResType } from '@/schemaValidations/order.schema';
+import {
+  PayGuestOrdersResType,
+  UpdateOrderResType,
+} from '@/schemaValidations/order.schema';
 import Image from 'next/image';
 import { useEffect, useMemo } from 'react';
 
 export default function OrderCart() {
   const { data, refetch } = useGuestOrderListQuery();
   const orders = data?.payload?.data ?? [];
-  const totalPrice = useMemo(() => {
-    return orders.reduce((result, dish) => {
-      return result + dish?.dishSnapshot?.price * dish?.quantity;
-    }, 0);
+  const { waitingForPaying, paid } = useMemo(() => {
+    return orders.reduce(
+      (result, order) => {
+        if (
+          !![
+            OrderStatus.Pending,
+            OrderStatus.Processing,
+            OrderStatus.Delivered,
+          ].includes(order.status as any)
+        )
+          return {
+            ...result,
+            waitingForPaying: {
+              price:
+                result.waitingForPaying.price +
+                order.dishSnapshot.price * order.quantity,
+              quantity: result.waitingForPaying.quantity + order.quantity,
+            },
+          };
+
+        if (order.status === OrderStatus.Paid) {
+          return {
+            ...result,
+            paid: {
+              price:
+                result.paid.price + order.dishSnapshot.price * order.quantity,
+              quantity: result.paid.quantity + order.quantity,
+            },
+          };
+        }
+
+        return { ...result };
+      },
+      {
+        waitingForPaying: { price: 0, quantity: 0 },
+        paid: { price: 0, quantity: 0 },
+      },
+    );
   }, [orders]);
 
   useEffect(() => {
@@ -44,7 +82,20 @@ export default function OrderCart() {
       refetch();
     }
 
+    function onPayment(data: PayGuestOrdersResType['data']) {
+      const { guest } = data[0];
+      if (!guest) {
+        return;
+      }
+      toast({
+        description: `${guest.name} tại bàn ${guest.tableNumber} thanh toán thành công ${data.length} đơn`,
+      });
+      refetch();
+    }
+
     socket.on('update-order', onUpdateOrder);
+    socket.on('payment', onPayment);
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
 
@@ -52,6 +103,7 @@ export default function OrderCart() {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('update-order', onUpdateOrder);
+      socket.off('payment', onPayment);
     };
   }, [refetch]);
   return (
@@ -82,10 +134,19 @@ export default function OrderCart() {
           </div>
         );
       })}
+
+      {paid.quantity > 0 && (
+        <div className="sticky bottom-0 mt-4">
+          <Button className="w-full justify-between flex gap-2" disabled={true}>
+            <span>Đơn đã thanh toán: {paid.quantity} món</span>
+            <span>{paid.price.toLocaleString()} đ</span>
+          </Button>
+        </div>
+      )}
       <div className="sticky bottom-0 mt-4">
         <Button className="w-full justify-between flex gap-2" disabled={true}>
-          <span>{orders.length} món</span>
-          <span>{totalPrice.toLocaleString()} đ</span>
+          <span>Đơn chưa thanh toán:{waitingForPaying.quantity} món</span>
+          <span>{waitingForPaying.price.toLocaleString()} đ</span>
         </Button>
       </div>
     </>

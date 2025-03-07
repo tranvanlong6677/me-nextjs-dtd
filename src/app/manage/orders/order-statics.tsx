@@ -63,6 +63,10 @@ export default function OrderStatics({
 }) {
   const [selectedTableNumber, setSelectedTableNumber] = useState<number>(0);
   const selectedServingGuest = servingGuestByTableNumber[selectedTableNumber];
+
+  const onPaySuccess = () => {
+    setSelectedTableNumber(0);
+  };
   return (
     <Fragment>
       <Dialog
@@ -87,7 +91,11 @@ export default function OrderStatics({
                 const orders = selectedServingGuest[Number(guestId)];
                 return (
                   <div key={guestId}>
-                    <OrderGuestDetail guest={orders[0].guest} orders={orders} />
+                    <OrderGuestDetail
+                      guest={orders[0].guest}
+                      orders={orders}
+                      onPaySuccess={onPaySuccess}
+                    />
                     {index !== Object.keys(selectedServingGuest).length - 1 && (
                       <Separator className="my-5" />
                     )}

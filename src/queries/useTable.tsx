@@ -9,6 +9,7 @@ export const useGetTableQuery = (id: number) => {
   return useQuery({
     queryKey: ['table-detail', id],
     queryFn: () => tableApiRequest.getTable(id),
+    enabled: !!id,
   });
 };
 
