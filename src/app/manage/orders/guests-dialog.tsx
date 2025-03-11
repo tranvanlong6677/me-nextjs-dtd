@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import AutoPagination from '@/components/auto-pagination'
 import { useEffect, useState } from 'react'
@@ -19,6 +20,7 @@ import { formatDateTimeToLocaleString, simpleMatchText } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { GetListGuestsResType } from '@/schemaValidations/account.schema'
 import { endOfDay, format, startOfDay } from 'date-fns'
+import { useGetGuestListQuery } from '@/queries/useAccount'
 
 type GuestItem = GetListGuestsResType['data'][0]
 
@@ -64,7 +66,11 @@ export default function GuestsDialog({ onChoose }: { onChoose: (guest: GuestItem
   const [open, setOpen] = useState(false)
   const [fromDate, setFromDate] = useState(initFromDate)
   const [toDate, setToDate] = useState(initToDate)
-  const data: GetListGuestsResType['data'] = []
+  const guestListQuery = useGetGuestListQuery({
+    fromDate,
+    toDate
+  })
+  const data = guestListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -157,8 +163,8 @@ export default function GuestsDialog({ onChoose }: { onChoose: (guest: GuestItem
               />
               <Input
                 placeholder='Số bàn'
-                value={(table.getColumn('tableNumber')?.getFilterValue() as string) ?? ''}
                 onChange={(event) => table.getColumn('tableNumber')?.setFilterValue(event.target.value)}
+                value={(table.getColumn('tableNumber')?.getFilterValue() as string) ?? ''}
                 className='w-[80px]'
               />
             </div>
@@ -216,7 +222,13 @@ export default function GuestsDialog({ onChoose }: { onChoose: (guest: GuestItem
                 <AutoPagination
                   page={table.getState().pagination.pageIndex + 1}
                   pageSize={table.getPageCount()}
-                  pathname='/manage/Guests'
+                  isLink={false}
+                  onClick={(pageNumber) =>
+                    table.setPagination({
+                      pageIndex: pageNumber - 1,
+                      pageSize: PAGE_SIZE
+                    })
+                  }
                 />
               </div>
             </div>

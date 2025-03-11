@@ -1,4 +1,6 @@
 import {
+  CreateOrdersBodyType,
+  CreateOrdersResType,
   GetOrderDetailResType,
   GetOrdersQueryParamsType,
   GetOrdersResType,
@@ -9,9 +11,10 @@ import {
 } from '@/schemaValidations/order.schema';
 import http from '../lib/http';
 import queryString from 'query-string';
-import { toDate } from 'date-fns';
 
 const orderApiRequest = {
+  createOrder: (body: CreateOrdersBodyType) =>
+    http.post<CreateOrdersResType>(`/orders`, body),
   getOrderLists: (queryParams: GetOrdersQueryParamsType) =>
     http.get<GetOrdersResType>(
       `/orders?` +
