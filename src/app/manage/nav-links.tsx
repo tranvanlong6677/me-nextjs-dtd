@@ -1,11 +1,7 @@
 'use client'
 import menuItems from '@/app/manage/menuItems'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider
-} from '@/components/ui/tooltip'
+import { useAppContext } from '@/components/app-provider'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { Package2, Settings } from 'lucide-react'
 import Link from 'next/link'
@@ -13,10 +9,12 @@ import { usePathname } from 'next/navigation'
 
 export default function NavLinks() {
   const pathname = usePathname()
+  const { role } = useAppContext()
+
   return (
     <TooltipProvider>
-      <aside className='fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex'>
-        <nav className='flex flex-col items-center gap-4 px-2 py-4'>
+      <aside className='fixed inset-y-0 left-0 z-10 hidden w-36 flex-col border-r bg-background sm:flex'>
+        <nav className='flex flex-col items-start gap-4 px-2 py-4'>
           <Link
             href='#'
             className='group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base'
@@ -27,26 +25,30 @@ export default function NavLinks() {
 
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href
-            return (
-              <Tooltip key={index}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={Item.href}
-                    className={cn(
-                      'flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8',
-                      {
-                        'bg-accent text-accent-foreground': isActive,
-                        'text-muted-foreground': !isActive
-                      }
-                    )}
-                  >
-                    <Item.Icon className='h-5 w-5' />
-                    <span className='sr-only'>{Item.title}</span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side='right'>{Item.title}</TooltipContent>
-              </Tooltip>
-            )
+            if (!!role && Item.role.includes(role as any)) {
+              return (
+                <Tooltip key={index}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={Item.href}
+                      className={cn(
+                        'flex h-8 w-32 items-center justify-start gap-2 rounded-lg transition-colors hover:text-foreground px-2',
+                        {
+                          'bg-accent text-accent-foreground': isActive,
+                          'text-muted-foreground': !isActive
+                        }
+                      )}
+                    >
+                      <Item.Icon className='h-5 w-5' />
+                      <span className='sr-only'>{Item.title}</span>
+                      <span>{Item.title}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side='right'>{Item.title}</TooltipContent>
+                </Tooltip>
+              )
+            }
+            return null
           })}
         </nav>
         <nav className='mt-auto flex flex-col items-center gap-4 px-2 py-4'>
@@ -57,8 +59,7 @@ export default function NavLinks() {
                 className={cn(
                   'flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8',
                   {
-                    'bg-accent text-accent-foreground':
-                      pathname === '/manage/setting',
+                    'bg-accent text-accent-foreground': pathname === '/manage/setting',
                     'text-muted-foreground': pathname !== '/manage/setting'
                   }
                 )}

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import {
   ColumnFiltersState,
   SortingState,
@@ -8,134 +8,107 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
-import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  GetOrdersResType,
-  PayGuestOrdersResType,
-  UpdateOrderResType,
-} from '@/schemaValidations/order.schema';
-import AddOrder from '@/app/manage/orders/add-order';
-import EditOrder from '@/app/manage/orders/edit-order';
-import { createContext, useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import AutoPagination from '@/components/auto-pagination';
-import { getVietnameseOrderStatus, handleErrorApi } from '@/lib/utils';
-import { OrderStatusValues } from '@/constants/type';
-import OrderStatics from '@/app/manage/orders/order-statics';
-import orderTableColumns from '@/app/manage/orders/order-table-columns';
-import { useOrderService } from '@/app/manage/orders/order.service';
-import { Check, ChevronsUpDown } from 'lucide-react';
+  useReactTable
+} from '@tanstack/react-table'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { GetOrdersResType, PayGuestOrdersResType, UpdateOrderResType } from '@/schemaValidations/order.schema'
+import AddOrder from '@/app/manage/orders/add-order'
+import EditOrder from '@/app/manage/orders/edit-order'
+import { createContext, useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import AutoPagination from '@/components/auto-pagination'
+import { getVietnameseOrderStatus, handleErrorApi } from '@/lib/utils'
+import { OrderStatusValues } from '@/constants/type'
+import OrderStatics from '@/app/manage/orders/order-statics'
+import orderTableColumns from '@/app/manage/orders/order-table-columns'
+import { useOrderService } from '@/app/manage/orders/order.service'
+import { Check, ChevronsUpDown } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { endOfDay, format, startOfDay } from 'date-fns';
-import TableSkeleton from '@/app/manage/orders/table-skeleton';
-import { toast } from '@/components/ui/use-toast';
-import { GuestCreateOrdersResType } from '@/schemaValidations/guest.schema';
-import {
-  useGetOrderListQuery,
-  useUpdateOrderMutation,
-} from '@/queries/useOrder';
-import { useGetListTableQuery } from '@/queries/useTable';
-import socket from '@/lib/socket';
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { endOfDay, format, startOfDay } from 'date-fns'
+import TableSkeleton from '@/app/manage/orders/table-skeleton'
+import { toast } from '@/components/ui/use-toast'
+import { GuestCreateOrdersResType } from '@/schemaValidations/guest.schema'
+import { useGetOrderListQuery, useUpdateOrderMutation } from '@/queries/useOrder'
+import { useGetListTableQuery } from '@/queries/useTable'
+import { useAppContext } from '@/components/app-provider'
 
 export const OrderTableContext = createContext({
   setOrderIdEdit: (value: number | undefined) => {},
   orderIdEdit: undefined as number | undefined,
   changeStatus: (payload: {
-    orderId: number;
-    dishId: number;
-    status: (typeof OrderStatusValues)[number];
-    quantity: number;
+    orderId: number
+    dishId: number
+    status: (typeof OrderStatusValues)[number]
+    quantity: number
   }) => {},
-  orderObjectByGuestId: {} as OrderObjectByGuestID,
-});
+  orderObjectByGuestId: {} as OrderObjectByGuestID
+})
 
-export type StatusCountObject = Record<
-  (typeof OrderStatusValues)[number],
-  number
->;
+export type StatusCountObject = Record<(typeof OrderStatusValues)[number], number>
 export type Statics = {
-  status: StatusCountObject;
-  table: Record<number, Record<number, StatusCountObject>>;
-};
-export type OrderObjectByGuestID = Record<number, GetOrdersResType['data']>;
-export type ServingGuestByTableNumber = Record<number, OrderObjectByGuestID>;
+  status: StatusCountObject
+  table: Record<number, Record<number, StatusCountObject>>
+}
+export type OrderObjectByGuestID = Record<number, GetOrdersResType['data']>
+export type ServingGuestByTableNumber = Record<number, OrderObjectByGuestID>
 
-const PAGE_SIZE = 10;
-const initFromDate = startOfDay(new Date());
-const initToDate = endOfDay(new Date());
+const PAGE_SIZE = 10
+const initFromDate = startOfDay(new Date())
+const initToDate = endOfDay(new Date())
 export default function OrderTable() {
-  const searchParam = useSearchParams();
-  const [openStatusFilter, setOpenStatusFilter] = useState(false);
-  const [fromDate, setFromDate] = useState(initFromDate);
-  const [toDate, setToDate] = useState(initToDate);
-  const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1;
-  const pageIndex = page - 1;
-  const [orderIdEdit, setOrderIdEdit] = useState<number | undefined>();
+  const searchParam = useSearchParams()
+  const { socket } = useAppContext()
+  const [openStatusFilter, setOpenStatusFilter] = useState(false)
+  const [fromDate, setFromDate] = useState(initFromDate)
+  const [toDate, setToDate] = useState(initToDate)
+  const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
+  const pageIndex = page - 1
+  const [orderIdEdit, setOrderIdEdit] = useState<number | undefined>()
   const {
     data: orderListQuery,
-    error,
     isPending,
-    refetch: refetchListQuery,
+    refetch: refetchListQuery
   } = useGetOrderListQuery({
     fromDate,
-    toDate,
-  });
-  const updateOrderMutation = useUpdateOrderMutation();
+    toDate
+  })
+  const updateOrderMutation = useUpdateOrderMutation()
   const refetchOrderList = useCallback(() => {
-    refetchListQuery();
-  }, [refetchListQuery]);
-  const { data: tableListQuery } = useGetListTableQuery();
-  const orderList = orderListQuery?.payload.data ?? [];
-  const tableList = tableListQuery?.payload.data ?? [];
-  const tableListSortedByNumber = tableList.sort((a, b) => a.number - b.number);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
+    refetchListQuery()
+  }, [refetchListQuery])
+  const { data: tableListQuery } = useGetListTableQuery()
+  const orderList = orderListQuery?.payload.data ?? []
+  const tableList = tableListQuery?.payload.data ?? []
+  const tableListSortedByNumber = tableList.sort((a, b) => a.number - b.number)
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE, //default page size
-  });
+    pageSize: PAGE_SIZE //default page size
+  })
 
-  const { statics, orderObjectByGuestId, servingGuestByTableNumber } =
-    useOrderService(orderList);
+  const { statics, orderObjectByGuestId, servingGuestByTableNumber } = useOrderService(orderList)
 
   const changeStatus = async (body: {
-    orderId: number;
-    dishId: number;
-    status: (typeof OrderStatusValues)[number];
-    quantity: number;
+    orderId: number
+    dishId: number
+    status: (typeof OrderStatusValues)[number]
+    quantity: number
   }) => {
     try {
-      const { quantity, dishId, status, orderId: id } = body;
-      await updateOrderMutation.mutateAsync({ quantity, dishId, status, id });
+      const { quantity, dishId, status, orderId: id } = body
+      await updateOrderMutation.mutateAsync({ quantity, dishId, status, id })
     } catch (error) {
-      handleErrorApi({ error });
+      handleErrorApi({ error })
     }
-  };
+  }
 
   const table = useReactTable({
     data: orderList,
@@ -155,90 +128,90 @@ export default function OrderTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
-  });
+      pagination
+    }
+  })
 
   const resetDateFilter = () => {
-    setFromDate(initFromDate);
-    setToDate(initToDate);
-  };
+    setFromDate(initFromDate)
+    setToDate(initToDate)
+  }
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE,
-    });
-  }, [table, pageIndex]);
+      pageSize: PAGE_SIZE
+    })
+  }, [table, pageIndex])
 
   useEffect(() => {
-    if (socket.connected) {
-      onConnect();
+    if (!socket) return
+
+    if (socket?.connected) {
+      onConnect()
     }
 
     function onConnect() {
-      console.log('id:', socket.id);
+      console.log('id:', socket?.id)
     }
 
     function onDisconnect() {
-      console.log('disconnect');
+      console.log('disconnect')
     }
 
     function onUpdateOrder(data: UpdateOrderResType['data']) {
-      console.log(data);
+      console.log(data)
       toast({
-        description: `Món ăn ${
-          data?.dishSnapshot?.name
-        } đã được cập nhật sang trạng thái ${getVietnameseOrderStatus(
-          data.status,
-        )}`,
-      });
-      refetch();
+        description: `Món ăn ${data?.dishSnapshot?.name} đã được cập nhật sang trạng thái ${getVietnameseOrderStatus(
+          data.status
+        )}`
+      })
+      refetch()
     }
 
     function onNewOrder(data: GuestCreateOrdersResType['data']) {
-      const { guest } = data[0];
+      const { guest } = data[0]
       if (!guest) {
-        return;
+        return
       }
       toast({
-        description: `${guest.name} tại bàn ${guest.tableNumber} vừa đặt ${data.length} món`,
-      });
-      refetch();
+        description: `${guest.name} tại bàn ${guest.tableNumber} vừa đặt ${data.length} món`
+      })
+      refetch()
     }
 
     function onPayment(data: PayGuestOrdersResType['data']) {
-      const { guest } = data[0];
+      const { guest } = data[0]
       if (!guest) {
-        return;
+        return
       }
       toast({
-        description: `${guest.name} tại bàn ${guest.tableNumber} thanh toán thành công ${data.length} đơn`,
-      });
-      refetch();
+        description: `${guest.name} tại bàn ${guest.tableNumber} thanh toán thành công ${data.length} đơn`
+      })
+      refetch()
     }
 
     function refetch() {
-      const now = new Date();
+      const now = new Date()
       if (now >= fromDate && now <= toDate) {
-        refetchOrderList();
+        refetchOrderList()
       }
     }
 
-    socket.on('update-order', onUpdateOrder);
-    socket.on('new-order', onNewOrder);
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('payment', onPayment);
+    socket?.on('update-order', onUpdateOrder)
+    socket?.on('new-order', onNewOrder)
+    socket?.on('connect', onConnect)
+    socket?.on('disconnect', onDisconnect)
+    socket?.on('payment', onPayment)
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('update-order', onUpdateOrder);
-      socket.off('new-order', onNewOrder);
-      socket.off('payment', onPayment);
-    };
-  }, [refetchOrderList, fromDate, toDate]);
+      socket?.off('connect', onConnect)
+      socket?.off('disconnect', onDisconnect)
+      socket?.off('update-order', onUpdateOrder)
+      socket?.off('new-order', onNewOrder)
+      socket?.off('payment', onPayment)
+    }
+  }, [refetchOrderList, fromDate, toDate])
 
   return (
     <OrderTableContext.Provider
@@ -246,89 +219,75 @@ export default function OrderTable() {
         orderIdEdit,
         setOrderIdEdit,
         changeStatus,
-        orderObjectByGuestId,
+        orderObjectByGuestId
       }}
     >
-      <div className="w-full">
-        <EditOrder
-          id={orderIdEdit}
-          setId={setOrderIdEdit}
-          onSubmitSuccess={() => {}}
-        />
-        <div className=" flex items-center">
-          <div className="flex flex-wrap gap-2">
-            <div className="flex items-center">
-              <span className="mr-2">Từ</span>
+      <div className='w-full'>
+        <EditOrder id={orderIdEdit} setId={setOrderIdEdit} onSubmitSuccess={() => {}} />
+        <div className=' flex items-center'>
+          <div className='flex flex-wrap gap-2'>
+            <div className='flex items-center'>
+              <span className='mr-2'>Từ</span>
               <Input
-                type="datetime-local"
-                placeholder="Từ ngày"
-                className="text-sm"
+                type='datetime-local'
+                placeholder='Từ ngày'
+                className='text-sm'
                 value={format(fromDate, 'yyyy-MM-dd HH:mm').replace(' ', 'T')}
                 onChange={(event) => setFromDate(new Date(event.target.value))}
               />
             </div>
-            <div className="flex items-center">
-              <span className="mr-2">Đến</span>
+            <div className='flex items-center'>
+              <span className='mr-2'>Đến</span>
               <Input
-                type="datetime-local"
-                placeholder="Đến ngày"
+                type='datetime-local'
+                placeholder='Đến ngày'
                 value={format(toDate, 'yyyy-MM-dd HH:mm').replace(' ', 'T')}
                 onChange={(event) => setToDate(new Date(event.target.value))}
               />
             </div>
-            <Button className="" variant={'outline'} onClick={resetDateFilter}>
+            <Button className='' variant={'outline'} onClick={resetDateFilter}>
               Reset
             </Button>
           </div>
-          <div className="ml-auto">
+          <div className='ml-auto'>
             <AddOrder />
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-4 py-4">
+        <div className='flex flex-wrap items-center gap-4 py-4'>
           <Input
-            placeholder="Tên khách"
-            value={
-              (table.getColumn('guestName')?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table.getColumn('guestName')?.setFilterValue(event.target.value)
-            }
-            className="max-w-[100px]"
+            placeholder='Tên khách'
+            value={(table.getColumn('guestName')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('guestName')?.setFilterValue(event.target.value)}
+            className='max-w-[100px]'
           />
           <Input
-            placeholder="Số bàn"
-            value={
-              (table.getColumn('tableNumber')?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table.getColumn('tableNumber')?.setFilterValue(event.target.value)
-            }
-            className="max-w-[80px]"
+            placeholder='Số bàn'
+            value={(table.getColumn('tableNumber')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('tableNumber')?.setFilterValue(event.target.value)}
+            className='max-w-[80px]'
           />
           <Popover open={openStatusFilter} onOpenChange={setOpenStatusFilter}>
             <PopoverTrigger
               asChild
               onChange={(e) => {
-                console.log('handle change', e.currentTarget.value);
+                console.log('handle change', e.currentTarget.value)
               }}
             >
               <Button
-                variant="outline"
-                role="combobox"
+                variant='outline'
+                role='combobox'
                 aria-expanded={openStatusFilter}
-                className="w-[150px] text-sm justify-between"
+                className='w-[150px] text-sm justify-between'
               >
                 {table.getColumn('status')?.getFilterValue()
                   ? getVietnameseOrderStatus(
-                      table
-                        .getColumn('status')
-                        ?.getFilterValue() as (typeof OrderStatusValues)[number],
+                      table.getColumn('status')?.getFilterValue() as (typeof OrderStatusValues)[number]
                     )
                   : 'Trạng thái'}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className='w-[200px] p-0'>
               <Command>
                 <CommandGroup>
                   <CommandList>
@@ -340,21 +299,15 @@ export default function OrderTable() {
                           table
                             .getColumn('status')
                             ?.setFilterValue(
-                              currentValue ===
-                                table.getColumn('status')?.getFilterValue()
-                                ? ''
-                                : currentValue,
-                            );
-                          setOpenStatusFilter(false);
+                              currentValue === table.getColumn('status')?.getFilterValue() ? '' : currentValue
+                            )
+                          setOpenStatusFilter(false)
                         }}
                       >
                         <Check
                           className={cn(
                             'mr-2 h-4 w-4',
-                            table.getColumn('status')?.getFilterValue() ===
-                              status
-                              ? 'opacity-100'
-                              : 'opacity-0',
+                            table.getColumn('status')?.getFilterValue() === status ? 'opacity-100' : 'opacity-0'
                           )}
                         />
                         {getVietnameseOrderStatus(status)}
@@ -372,7 +325,7 @@ export default function OrderTable() {
           servingGuestByTableNumber={servingGuestByTableNumber}
         />
         {isPending && <TableSkeleton />}
-        <div className="rounded-md border">
+        <div className='rounded-md border'>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -380,14 +333,9 @@ export default function OrderTable() {
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -395,26 +343,15 @@ export default function OrderTable() {
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                  >
+                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={orderTableColumns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={orderTableColumns.length} className='h-24 text-center'>
                     No results.
                   </TableCell>
                 </TableRow>
@@ -422,21 +359,20 @@ export default function OrderTable() {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="text-xs text-muted-foreground py-4 flex-1 ">
-            Hiển thị{' '}
-            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{' '}
+        <div className='flex items-center justify-end space-x-2 py-4'>
+          <div className='text-xs text-muted-foreground py-4 flex-1 '>
+            Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong> trong{' '}
             <strong>{orderList.length}</strong> kết quả
           </div>
           <div>
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname="/manage/orders"
+              pathname='/manage/orders'
             />
           </div>
         </div>
       </div>
     </OrderTableContext.Provider>
-  );
+  )
 }
