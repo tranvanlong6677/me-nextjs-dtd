@@ -12,3 +12,11 @@ export const useLogoutMutation = () => {
     mutationFn: authApiRequest.logout
   })
 }
+
+export const useSetTokenToCookiesMutation = () => {
+  return useMutation({
+    mutationFn: async (body: { accessToken: string; refreshToken: string }) => {
+      return authApiRequest.setTokenToCookies(body)
+    }
+  })
+}

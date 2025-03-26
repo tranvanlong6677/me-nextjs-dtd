@@ -34,22 +34,20 @@ const authApiRequest = {
       }
     ),
   logout: () => http.post('/api/auth/logout', null, { baseUrl: '' }), // client gọi đến route handler, không cần truyền AT và RT vào body vì AT và RT tự  động gửi thông qua cookie rồi
-  sRefreshToken: (body: RefreshTokenBodyType) =>
-    http.post<RefreshTokenResType>('/auth/refresh-token', body),
+  sRefreshToken: (body: RefreshTokenBodyType) => http.post<RefreshTokenResType>('/auth/refresh-token', body),
   async refreshToken() {
     if (this.refreshTokenRequest) {
       return this.refreshTokenRequest
     }
-    this.refreshTokenRequest = http.post<RefreshTokenResType>(
-      '/api/auth/refresh-token',
-      null,
-      {
-        baseUrl: ''
-      }
-    )
+    this.refreshTokenRequest = http.post<RefreshTokenResType>('/api/auth/refresh-token', null, {
+      baseUrl: ''
+    })
     const result = await this.refreshTokenRequest
     this.refreshTokenRequest = null
     return result
+  },
+  setTokenToCookies: (body: { accessToken: string; refreshToken: string }) => {
+    http.post('/api/auth/token', body, { baseUrl: '' })
   }
 }
 
