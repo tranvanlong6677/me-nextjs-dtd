@@ -1,5 +1,5 @@
 'use client'
-import { useAppContext } from '@/components/app-provider'
+import { useAppStore } from '@/components/app-provider'
 import { toast } from '@/components/ui/use-toast'
 import { decodeToken, generateSocketInstance } from '@/lib/utils'
 import { useSetTokenToCookiesMutation } from '@/queries/useAuth'
@@ -12,7 +12,9 @@ export default function OAuthPage() {
   const refreshToken = searchParams.get('refreshToken')
   const message = searchParams.get('message')
   const router = useRouter()
-  const { setRole, setSocket } = useAppContext()
+  const setRole = useAppStore((state) => state.setRole)
+  const setSocket = useAppStore((state) => state.setSocket)
+
   const countRef = useRef(0)
 
   const { mutateAsync: setTokenToCookies, isPending } = useSetTokenToCookiesMutation()
