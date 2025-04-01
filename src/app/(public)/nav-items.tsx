@@ -33,6 +33,10 @@ const menuItems: {
     roles: [Role.Guest]
   },
   {
+    title: 'Settings',
+    href: '/settings'
+  },
+  {
     title: 'Đơn hàng',
     href: '/guest/orders',
     roles: [Role.Guest]

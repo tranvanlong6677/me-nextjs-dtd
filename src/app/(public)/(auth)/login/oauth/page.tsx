@@ -4,9 +4,17 @@ import { toast } from '@/components/ui/use-toast'
 import { decodeToken, generateSocketInstance } from '@/lib/utils'
 import { useSetTokenToCookiesMutation } from '@/queries/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 
 export default function OAuthPage() {
+  return (
+    <Suspense>
+      <OAuth />
+    </Suspense>
+  )
+}
+
+function OAuth() {
   const searchParams = useSearchParams()
   const accessToken = searchParams.get('accessToken')
   const refreshToken = searchParams.get('refreshToken')
