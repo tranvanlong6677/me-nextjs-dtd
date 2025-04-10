@@ -7,7 +7,7 @@ import {
 } from '@/lib/utils'
 import { LoginResType } from '@/schemaValidations/auth.schema'
 import { GuestLoginResType } from '@/schemaValidations/guest.schema'
-import { redirect } from 'next/navigation'
+import { redirect } from '@/i18n/navigation'
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
   baseUrl?: string | undefined
@@ -130,7 +130,16 @@ const request = async <Response>(
         // Đây là trường hợp khi mà chúng ta vẫn còn access token (còn hạn)
         // Và chúng ta gọi API ở Next.js Server (Route Handler , Server Component) đến Server Backend
         const accessToken = (options?.headers as any)?.Authorization.split('Bearer ')[1]
-        redirect(`/logout?accessToken=${accessToken}`)
+        // redirect(`/logout?accessToken=${accessToken}`)
+        redirect({
+          href: {
+            pathname: '/logout',
+            query: {
+              accessToken
+            }
+          },
+          locale: 'vi'
+        })
       }
     } else {
       throw new HttpError(data)

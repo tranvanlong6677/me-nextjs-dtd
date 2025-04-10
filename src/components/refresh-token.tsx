@@ -1,9 +1,9 @@
 'use client'
 
 import { checkAndRefreshToken } from '@/lib/utils'
-import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useAppStore } from './app-provider'
+import { useRouter, usePathname } from '@/i18n/navigation'
 
 const UNAUTHENTICATED_PATH = ['/login', '/logout', '/refresh-token']
 export default function RefreshToken() {

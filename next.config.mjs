@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+import createNextIntlPlugin from 'next-intl/plugin'
 const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
@@ -7,15 +8,20 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '4000',
-        pathname: '/**',
+        pathname: '/**'
       },
       {
         hostname: 'via.placeholder.com',
-        pathname: '/**',
-      },
+        pathname: '/**'
+      }
       // via.placeholder.com
-    ],
-  },
-};
+    ]
+  }
+}
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin({
+  experimental: {
+    createMessagesDeclaration: './messages/en.json'
+  }
+})
+export default withNextIntl(nextConfig)
