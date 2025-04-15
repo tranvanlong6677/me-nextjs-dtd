@@ -5,9 +5,10 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '4000',
+        // protocol: 'http',
+        hostname: 'api-bigboy.duthanhduoc.com',
+        // hostname: 'localhost',
+        // port: '4000',
         pathname: '/**'
       },
       {

@@ -1,43 +1,15 @@
-'use client'
+import { Suspense } from 'react'
+import Logout from './logout'
+import { Metadata } from 'next'
 
-import { useAppStore } from '@/components/app-provider'
-import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '@/lib/utils'
-import { useLogoutMutation } from '@/queries/useAuth'
-import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useRef } from 'react'
-import { useRouter } from '@/i18n/navigation'
-
-function Logout() {
-  const { mutateAsync } = useLogoutMutation()
-  const router = useRouter()
-  const setRole = useAppStore((state) => state.setRole)
-  const disconnectSocket = useAppStore((state) => state.disconnectSocket)
-  const searchParams = useSearchParams()
-  const refreshTokenFromUrl = searchParams.get('refreshToken')
-  const accessTokenFromUrl = searchParams.get('accessToken')
-  const ref = useRef<any>(null)
-
-  useEffect(() => {
-    if (
-      !ref.current &&
-      ((refreshTokenFromUrl && refreshTokenFromUrl === getRefreshTokenFromLocalStorage()) ||
-        (accessTokenFromUrl && accessTokenFromUrl === getAccessTokenFromLocalStorage()))
-    ) {
-      ref.current = mutateAsync
-      mutateAsync().then((res) => {
-        setTimeout(() => {
-          ref.current = null
-        }, 1000)
-        setRole(undefined)
-        disconnectSocket()
-        router.push('/login')
-      })
-    } else {
-      router.push('/')
-    }
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole, disconnectSocket])
-  return <div>Log out....</div>
+export const metadata: Metadata = {
+  title: 'Logout redirect',
+  description: 'Logout redirect',
+  robots: {
+    index: false
+  }
 }
+
 export default function LogoutPage() {
   return (
     <Suspense>

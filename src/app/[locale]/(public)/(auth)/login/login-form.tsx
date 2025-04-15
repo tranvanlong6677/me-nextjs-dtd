@@ -17,6 +17,7 @@ import { Link } from '@/i18n/navigation'
 import { useAppStore } from '@/components/app-provider'
 import { useTranslations } from 'next-intl'
 import SearchParamsLoader, { useSearchParamsLoader } from '@/components/search-params-loader'
+import { error } from 'console'
 
 const getOauthGoogleUrl = () => {
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -38,6 +39,7 @@ const googleOauthUrl = getOauthGoogleUrl()
 
 export default function LoginForm() {
   const tLogin = useTranslations('LoginPage')
+  const tErrorMessage = useTranslations('ErrorMessage')
   const { searchParams, setSearchParams } = useSearchParamsLoader()
   const loginMutation = useLoginMutation()
   const clearTokens = searchParams?.get('clearTokens')
@@ -102,7 +104,9 @@ export default function LoginForm() {
                     <div className='grid gap-2'>
                       <Label htmlFor='email'>Email</Label>
                       <Input id='email' type='email' placeholder='m@example.com' required {...field} />
-                      <FormMessage />
+                      <FormMessage>
+                        {/* {!!errors.email?.message && tErrorMessage(errors.email?.message as any)} */}
+                      </FormMessage>
                     </div>
                   </FormItem>
                 )}

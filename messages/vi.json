@@ -1,4 +1,8 @@
 {
+  "ErrorMessage": {
+    "invalidEmail": "Email không hợp lệ",
+    "required": "Trường này là bắt buộc"
+  },
   "HomePage": {
     "title": "Nhà hàng Big boy",
     "description": "Vị ngon, trọn khoảnh khắc"

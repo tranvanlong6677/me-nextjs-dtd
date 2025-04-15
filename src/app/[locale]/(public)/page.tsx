@@ -3,6 +3,7 @@ import { DishListResType } from '@/schemaValidations/dish.schema'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
+import { generateSlugUrl } from '@/lib/utils'
 export default async function Home({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale)
 
@@ -41,7 +42,11 @@ export default async function Home({ params: { locale } }: { params: { locale: s
         <h2 className='text-center text-2xl font-bold'>Đa dạng các món ăn</h2>
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-10'>
           {dishList.map((item) => (
-            <Link href={`/dishes/${item.id}`} className='flex gap-4 w' key={item.id}>
+            <Link
+              href={`/dishes/${generateSlugUrl({ name: item.name, id: item.id })}`}
+              className='flex gap-4 w'
+              key={item.id}
+            >
               <div className='flex-shrink-0'>
                 <Image
                   src={item?.image}

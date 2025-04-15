@@ -2,6 +2,20 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Metadata": {
+    "HomePage": {
+      "title": "Big Boy Restaurant",
+      "description": "Delicious taste, full moment"
+    },
+    "LogoutPage": {
+      "title": "Logout",
+      "description": "Enter your email and password to log in to the system"
+    }
+  },
+  "ErrorMessage": {
+    "invalidEmail": "Invalid email",
+    "required": "This field is required"
+  },
   "HomePage": {
     "title": "Big Boy Restaurant",
     "description": "Delicious taste, full moment"

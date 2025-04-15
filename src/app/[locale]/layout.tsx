@@ -1,23 +1,31 @@
-import type { Metadata } from 'next'
-import { Inter as FontSans } from 'next/font/google'
-import './globals.css'
-import { cn } from '@/lib/utils'
-import { Toaster } from '@/components/ui/toaster'
-import { ThemeProvider } from '@/components/theme-provider'
 import AppProvider from '@/components/app-provider'
-import { hasLocale, NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
-import { notFound } from 'next/navigation'
+import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/toaster'
 import { routing } from '@/i18n/routing'
+import { cn } from '@/lib/utils'
+import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl'
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
+import { Inter as FontSans } from 'next/font/google'
+import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
+import './globals.css'
 
 const fontSans = FontSans({
   subsets: ['latin'],
   variable: '--font-sans'
 })
-export const metadata: Metadata = {
-  title: 'Big Boy Restaurant',
-  description: 'The best restaurant in the world'
+// export const metadata: Metadata = {
+//   title: 'Big Boy Restaurant',
+//   description: 'The best restaurant in the world'
+// }
+
+export async function generateMetadata({ params }: { params: { locale: Locale } }) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'HomePage' })
+
+  return {
+    title: t('title')
+  }
 }
 
 export function generateStaticParams() {

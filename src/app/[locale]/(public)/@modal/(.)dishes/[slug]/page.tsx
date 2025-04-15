@@ -1,9 +1,10 @@
 import dishApiRequest from '@/apiRequests/dish'
-import { wrapServerApi } from '@/lib/utils'
+import { wrapServerApi, getIdFromSlugUrl } from '@/lib/utils'
 import Modal from './modal'
-import DishDetail from '@/app/[locale]/(public)/dishes/[id]/dish-detail'
+import DishDetail from '@/app/[locale]/(public)/dishes/[slug]/dish-detail'
 
-export default async function DishPage({ params: { id } }: { params: { id?: string } }) {
+export default async function DishPage({ params: { slug } }: { params: { slug: string } }) {
+  const id = getIdFromSlugUrl(slug)
   const response: any = await wrapServerApi(() => dishApiRequest.getDish(+(id || -1)))
   const data = response?.payload?.data
   if (!data) {
