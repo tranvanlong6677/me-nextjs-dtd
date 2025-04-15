@@ -9,15 +9,12 @@ import { Inter as FontSans } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import './globals.css'
+import NextTopLoader from 'nextjs-toploader'
 
 const fontSans = FontSans({
   subsets: ['latin'],
   variable: '--font-sans'
 })
-// export const metadata: Metadata = {
-//   title: 'Big Boy Restaurant',
-//   description: 'The best restaurant in the world'
-// }
 
 export async function generateMetadata({ params }: { params: { locale: Locale } }) {
   const { locale } = await params
@@ -51,6 +48,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+        <NextTopLoader showSpinner={false} />
         <NextIntlClientProvider>
           <AppProvider>
             <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
